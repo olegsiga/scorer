@@ -1,0 +1,25 @@
+plugins {
+    id "org.springframework.boot"
+}
+
+bootJar {
+    jar.enabled = false
+    archiveFileName = "scorer-${version}.jar"
+}
+
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events("PASSED", "FAILED", "SKIPPED")
+    }
+    environment("SPRING_PROFILES_ACTIVE", "test")
+    jvmArgs = ['-ea', '-Xmx2048m', '-Duser.timezone=UTC']
+}
