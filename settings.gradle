@@ -1,2 +1,3 @@
 rootProject.name = 'scorer'
 include('server')
+include('database')

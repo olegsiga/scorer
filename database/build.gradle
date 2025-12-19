@@ -1,0 +1,36 @@
+buildscript {
+    dependencies {
+        classpath("com.mysql:mysql-connector-j:$mysqlConnectorVersion")
+    }
+}
+
+plugins {
+    id 'java'
+    id 'org.liquibase.gradle' version "$liquibaseGradlePluginVersion"
+}
+
+if (!project.hasProperty("env")) {
+    project.ext.env = "test"
+}
+
+Properties databaseProps = new Properties()
+file("${project.rootDir}/database/src/test/resources/${project.ext.env}.scorer.properties").withReader {
+    databaseProps.load(it)
+}
+
+liquibase {
+    activities {
+        "scorer" {
+            changeLogFile("/database/src/main/resources/liquibase/changelog.xml")
+            url(databaseProps.url)
+            username(databaseProps.username)
+            password(databaseProps.password)
+        }
+    }
+}
+
+dependencies {
+    liquibaseRuntime("info.picocli:picocli:$picocliVersion")
+    liquibaseRuntime("org.liquibase:liquibase-core:$liquibaseVersion")
+    liquibaseRuntime("com.mysql:mysql-connector-j:$mysqlConnectorVersion")
+}
