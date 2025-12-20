@@ -36,6 +36,7 @@ Each event uses the formula:
 
 Following REST conventions from CLAUDE.md:
 
+#### Calculate and Store Result
 ```
 POST /api/score/calculate
 ```
@@ -52,17 +53,45 @@ POST /api/score/calculate
 ```json
 {
   "status": "ok",
+  "id": "01JFXYZ123ABC",
   "sport": "Long Jump",
   "result": 7.76,
   "points": 1000
 }
 ```
 
-**Error Response:**
+#### Get Result by ID
+```
+POST /api/score/get
+```
+
+**Request:**
 ```json
 {
-  "status": "invalid-sport"
+  "id": "01JFXYZ123ABC"
 }
+```
+
+#### List Recent Results
+```
+POST /api/score/list
+```
+
+**Response:**
+```json
+{
+  "status": "ok",
+  "content": [
+    { "id": "01JFXYZ123ABC", "sport": "Long Jump", "result": 7.76, "points": 1000 },
+    { "id": "01JFXYZ456DEF", "sport": "100m", "result": 10.4, "points": 1000 }
+  ]
+}
+```
+
+**Error Response:**
+```json
+{ "status": "invalid-sport" }
+{ "status": "result-not-found" }
 ```
 
 ### 2. Backend Architecture
@@ -73,11 +102,12 @@ server/src/main/java/com/scorer/
 │   ├── HealthController.java
 │   └── ScoreController.java
 ├── service/
-│   └── DecathlonScoreService.java
-├── model/
+│   └── ScoreService.java
+├── dao/
+│   └── ScoreResultDao.java
+├── entity/
 │   ├── Sport.java (enum with constants)
-│   ├── ScoreRequest.java
-│   └── ScoreResponse.java
+│   └── ScoreResult.java
 └── ScorerApplication.java
 ```
 
@@ -93,9 +123,14 @@ public enum Sport {
 ```
 
 **Service:**
-- Pure calculation logic
-- Stateless (no database needed)
-- Thread-safe by design (immutable inputs, no shared state)
+- Calculation logic
+- Results stored in MySQL (showcases DAO layer)
+- Returns generated ID with each result
+
+**DAO Layer:**
+- `@Repository` with `NamedParameterJdbcTemplate`
+- Proper SQL queries with `@Language("SQL")`
+- Transaction management with `@Transactional`
 
 ### 3. Frontend (React)
 
@@ -118,11 +153,12 @@ frontend/src/
 
 ## High Load Considerations
 
-### Current Design (Simple)
+### Current Design (MySQL Storage)
 
-For a calculation-only service with no persistence:
-- **Throughput**: A single Spring Boot instance can handle ~10,000+ requests/sec for CPU-bound calculations
-- **No bottlenecks**: No database, no I/O, pure math
+For database-backed storage:
+- **Throughput**: Single instance ~5,000-10,000 req/sec (DB becomes bottleneck)
+- **Persistence**: Data survives restarts
+- **Bottleneck**: Database writes and connection pool
 
 ### Scaling Strategies
 
@@ -149,20 +185,25 @@ For a calculation-only service with no persistence:
 ```
                     ┌─────────────────┐
                     │  Load Balancer  │
-                    │  (nginx/HAProxy)│
                     └────────┬────────┘
                              │
          ┌───────────────────┼───────────────────┐
          │                   │                   │
     ┌────▼────┐        ┌────▼────┐        ┌────▼────┐
     │ Server 1│        │ Server 2│        │ Server 3│
-    │  :8080  │        │  :8080  │        │  :8080  │
     └─────────┘        └─────────┘        └─────────┘
+                             │
+                    ┌────────▼────────┐
+                    │   MySQL Primary │
+                    │   + Read Replicas│
+                    └─────────────────┘
 ```
 
-- Stateless service → easy horizontal scaling
-- Use Kubernetes for orchestration
-- Add instances based on CPU metrics
+**Database scaling options:**
+- **Connection pooling**: HikariCP with optimal pool size
+- **Read replicas**: For list/get operations (writes to primary only)
+- **Async writes**: Queue writes, return immediately (eventual consistency)
+- **Sharding**: Partition by ID range (for massive scale)
 
 #### Level 3: Edge Computing (global scale)
 
@@ -194,7 +235,19 @@ But for this use case, caching adds more overhead than computing:
 ### Prerequisites
 - Java 25
 - Node.js 18+
-- MySQL 8+ (for health check, optional)
+- Docker
+
+### Start MySQL
+```bash
+docker compose up -d
+```
+
+MySQL runs on port 3336 (to avoid conflicts with default 3306).
+
+### Run Database Migrations
+```bash
+./gradlew :database:update
+```
 
 ### Run Backend
 ```bash

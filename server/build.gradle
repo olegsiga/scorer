@@ -15,7 +15,13 @@ dependencies {
 
     implementation("com.mysql:mysql-connector-j:${mysqlConnectorVersion}")
 
+    compileOnly("org.jetbrains:annotations:26.0.1")
+
+    compileOnly("org.projectlombok:lombok:${lombokVersion}")
+    annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("com.fasterxml.jackson.core:jackson-databind")
     testImplementation("org.testng:testng:${testngVersion}")
     testRuntimeOnly("com.h2database:h2")
 }
