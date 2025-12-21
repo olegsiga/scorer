@@ -18,9 +18,13 @@ public class BaseTest extends AbstractTestNGSpringContextTests {
     @Autowired
     protected WebApplicationContext wac;
 
+    @Autowired
+    private DatabaseHelper databaseHelper;
+
     @BeforeMethod
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        databaseHelper.clearDatabase();
     }
 
 }

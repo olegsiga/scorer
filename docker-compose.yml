@@ -1,0 +1,13 @@
+services:
+  mysql:
+    image: mysql:8.0
+    ports:
+      - 3336:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: scorer
+      MYSQL_DATABASE: scorer
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
