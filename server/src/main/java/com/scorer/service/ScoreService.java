@@ -14,6 +14,8 @@ import java.util.UUID;
 @Service
 public class ScoreService {
 
+    private static final int ZERO = 0;
+
     private final ScoreResultDao scoreResultDao;
 
     public ScoreResult submitScore(Performance performance) {
@@ -44,9 +46,9 @@ public class ScoreService {
             return applyFormula(sport, difference);
         } else {
             // Field events: Points = coefficient × (measurement − baseline)^exponent
-            double distance = convertToFieldUnit(sport, measurement);
+            double distance = sport.toScoringUnit(measurement);
             if (distance <= sport.getBaseline()) {
-                return 0;
+                return ZERO;
             }
             double difference = distance - sport.getBaseline();
             return applyFormula(sport, difference);
@@ -58,17 +60,8 @@ public class ScoreService {
         return Double.valueOf(Math.floor(points)).intValue();
     }
 
-    private double convertToFieldUnit(Sport sport, double measurement) {
-        // Long Jump, High Jump, Pole Vault: measurement in meters, formula uses cm
-        // Shot Put, Discus, Javelin: measurement in meters, formula uses meters
-        return switch (sport) {
-            case LONG_JUMP, HIGH_JUMP, POLE_VAULT -> measurement * 100; // convert m to cm
-            default -> measurement; // already in meters
-        };
-    }
-
     private String generateId() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+        return UUID.randomUUID().toString();
     }
 
 }
