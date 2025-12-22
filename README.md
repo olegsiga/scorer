@@ -1,10 +1,10 @@
 # Decathlon Points Calculator
 
+## In order to start application
 ### Start MySQL
 ```bash
 docker compose up -d
 ```
-MySQL runs on port 3336
 
 ### Run Database Migrations
 ```bash
@@ -21,7 +21,16 @@ MySQL runs on port 3336
 cd frontend && npm run dev
 ```
 
+
+
+## To Run tests
 ### Run Tests
 ```bash
 ./gradlew test
+```
+
+## Or
+### Clean build and tests
+```bash
+./gradlew clean build
 ```
