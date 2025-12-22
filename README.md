@@ -1,11 +1,28 @@
 # Decathlon Points Calculator
 
+## Run with Docker Compose
+
+Build and run everything in Docker
+
+```bash
+docker compose up --build
+```
+Access the app at http://localhost:3000
+
+To stop:
+```bash
+docker compose down
+```
+
+# Without docker compose
+
 ## Prerequisites
 - Java 17
 - Docker
 - Node.js (for frontend)
 
-## In order to start application
+## Local Development
+
 ### Start MySQL
 ```bash
 docker compose up -d
@@ -26,15 +43,13 @@ docker compose up -d
 cd frontend && npm run dev
 ```
 
+## Tests
 
-
-## To Run tests
 ### Run Tests
 ```bash
 ./gradlew test
 ```
 
-## Or
 ### Clean build and tests
 ```bash
 ./gradlew clean build
