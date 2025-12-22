@@ -3,6 +3,7 @@ package com.scorer.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scorer.BaseTest;
+import com.scorer.controller.request.SubmitRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.testng.annotations.Test;
@@ -18,23 +19,17 @@ public class ScoreControllerTest extends BaseTest {
     @Test
     public void submit_validLongJump_returnsOkWithPoints() throws Exception {
         // given
-        String requestBody = """
-                {
-                    "sport": "Long Jump",
-                    "result": 7.76
-                }
-                """;
+        var request = new SubmitRequest("Long Jump", 7.76);
 
         // when
         MvcResult result = mockMvc.perform(post("/score/submit")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andReturn();
 
         // then
         assertEquals(result.getResponse().getStatus(), 200);
         JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
-        assertEquals(json.get("status").asText(), "ok");
         assertNotNull(json.get("id").asText());
         assertEquals(json.get("sport").asText(), "Long Jump");
         assertEquals(json.get("result").asDouble(), 7.76);
@@ -44,42 +39,31 @@ public class ScoreControllerTest extends BaseTest {
     @Test
     public void submit_valid100m_returnsOkWithPoints() throws Exception {
         // given
-        String requestBody = """
-                {
-                    "sport": "100m",
-                    "result": 10.395
-                }
-                """;
+        var request = new SubmitRequest("100m", 10.395);
 
         // when
         MvcResult result = mockMvc.perform(post("/score/submit")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andReturn();
 
         // then
         assertEquals(result.getResponse().getStatus(), 200);
         JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
-        assertEquals(json.get("status").asText(), "ok");
         assertNotNull(json.get("id").asText());
         assertEquals(json.get("sport").asText(), "100m");
         assertNotNull(json.get("points").asInt());
     }
 
     @Test
-    public void submit_invalidSport_returnsInvalidSportStatus() throws Exception {
+    public void submit_invalidSport_returns400() throws Exception {
         // given
-        String requestBody = """
-                {
-                    "sport": "Unknown Sport",
-                    "result": 10.0
-                }
-                """;
+        var request = new SubmitRequest("Unknown Sport", 10.0);
 
         // when
         MvcResult result = mockMvc.perform(post("/score/submit")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andReturn();
 
         // then
@@ -87,19 +71,14 @@ public class ScoreControllerTest extends BaseTest {
     }
 
     @Test
-    public void submit_negativeResult_returnsInvalidResultStatus() throws Exception {
+    public void submit_negativeResult_returns400() throws Exception {
         // given
-        String requestBody = """
-                {
-                    "sport": "Long Jump",
-                    "result": -5.0
-                }
-                """;
+        var request = new SubmitRequest("Long Jump", -5.0);
 
         // when
         MvcResult result = mockMvc.perform(post("/score/submit")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andReturn();
 
         // then

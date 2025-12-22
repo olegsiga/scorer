@@ -20,7 +20,7 @@ public class ScoreController {
 
     @PostMapping("/score/submit")
     public SubmitResponse submit(@Valid @RequestBody SubmitRequest request) {
-        var performance = new Performance(request.getSport(), request.result());
+        var performance = new Performance(request.toSport(), request.result());
         var scoreResult = scoreService.submitScore(performance);
         return SubmitResponse.from(scoreResult);
     }

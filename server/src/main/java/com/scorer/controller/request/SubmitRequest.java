@@ -8,7 +8,7 @@ public record SubmitRequest(
         @ValidSport String sport,
         @Positive double result
 ) {
-    public Sport getSport() {
+    public Sport toSport() {
         return Sport.fromDisplayName(sport);
     }
 }
