@@ -1,5 +1,10 @@
 # Decathlon Points Calculator
 
+## Prerequisites
+- Java 17
+- Docker
+- Node.js (for frontend)
+
 ## In order to start application
 ### Start MySQL
 ```bash
