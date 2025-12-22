@@ -1,6 +1,7 @@
 package com.scorer.controller;
 
 import com.scorer.controller.request.SubmitRequest;
+import com.scorer.controller.response.ScoreListResponse;
 import com.scorer.controller.response.SubmitResponse;
 import com.scorer.entity.Performance;
 import com.scorer.service.ScoreService;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ScoreController {
 
+    private static final int DEFAULT_LIMIT = 100;
+
     private final ScoreService scoreService;
 
     @PostMapping("/score/submit")
@@ -25,4 +28,9 @@ public class ScoreController {
         return SubmitResponse.from(scoreResult);
     }
 
+    @PostMapping("/score/list")
+    public ScoreListResponse list() {
+        var results = scoreService.getRecentScores(DEFAULT_LIMIT);
+        return ScoreListResponse.from(results);
+    }
 }
