@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -31,6 +32,10 @@ public class ScoreService {
         scoreResultDao.insert(scoreResult);
 
         return scoreResult;
+    }
+
+    public List<ScoreResult> getRecentScores(int limit) {
+        return scoreResultDao.findRecent(limit);
     }
 
     public int calculatePoints(Performance performance) {

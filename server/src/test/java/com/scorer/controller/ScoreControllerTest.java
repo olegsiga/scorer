@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 public class ScoreControllerTest extends BaseTest {
 
@@ -85,4 +86,32 @@ public class ScoreControllerTest extends BaseTest {
         assertEquals(result.getResponse().getStatus(), 400);
     }
 
+    @Test
+    public void list_afterSubmit_returnsScores() throws Exception {
+        // given
+        var request = new SubmitRequest("Long Jump", 7.5);
+        mockMvc.perform(post("/score/submit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andReturn();
+
+        // when
+        MvcResult result = mockMvc.perform(post("/score/list")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        // then
+        assertEquals(result.getResponse().getStatus(), 200);
+        JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertNotNull(json.get("content"));
+        assertTrue(json.get("content").isArray());
+        assertTrue(json.get("content").size() > 0);
+
+        JsonNode firstScore = json.get("content").get(0);
+        assertNotNull(firstScore.get("id").asText());
+        assertEquals(firstScore.get("sport").asText(), "Long Jump");
+        assertEquals(firstScore.get("result").asDouble(), 7.5);
+        assertNotNull(firstScore.get("points"));
+        assertNotNull(firstScore.get("createdAt").asText());
+    }
 }
