@@ -1,5 +1,15 @@
+FROM gradle:8.8-jdk17 AS build
+WORKDIR /app
+COPY settings.gradle .
+COPY build.gradle .
+COPY gradle.properties .
+COPY database database
+COPY server server
+RUN sed -i '/org.gradle.java.home/d' gradle.properties && \
+    gradle :server:bootJar --no-daemon
+
 FROM eclipse-temurin:17-jre
 WORKDIR /app
-COPY server/build/libs/*.jar app.jar
+COPY --from=build /app/server/build/libs/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
