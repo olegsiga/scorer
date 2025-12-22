@@ -3,7 +3,6 @@ package com.scorer.controller;
 import com.scorer.controller.request.SubmitRequest;
 import com.scorer.controller.response.SubmitResponse;
 import com.scorer.entity.Performance;
-import com.scorer.entity.Sport;
 import com.scorer.service.ScoreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,19 +20,9 @@ public class ScoreController {
 
     @PostMapping("/score/submit")
     public SubmitResponse submit(@Valid @RequestBody SubmitRequest request) {
-        var sport = Sport.fromDisplayName(request.sport());
-        if (sport == null) {
-            return SubmitResponse.invalidSport();
-        }
-
-        if (request.result() <= 0) {
-            return SubmitResponse.invalidResult();
-        }
-
-        var performance = new Performance(sport, request.result());
+        var performance = new Performance(request.getSport(), request.result());
         var scoreResult = scoreService.submitScore(performance);
-
-        return SubmitResponse.ok(scoreResult);
+        return SubmitResponse.from(scoreResult);
     }
 
 }

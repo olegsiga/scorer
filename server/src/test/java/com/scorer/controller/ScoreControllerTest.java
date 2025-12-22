@@ -83,9 +83,7 @@ public class ScoreControllerTest extends BaseTest {
                 .andReturn();
 
         // then
-        assertEquals(result.getResponse().getStatus(), 200);
-        JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
-        assertEquals(json.get("status").asText(), "invalid-sport");
+        assertEquals(result.getResponse().getStatus(), 400);
     }
 
     @Test
@@ -105,9 +103,7 @@ public class ScoreControllerTest extends BaseTest {
                 .andReturn();
 
         // then
-        assertEquals(result.getResponse().getStatus(), 200);
-        JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
-        assertEquals(json.get("status").asText(), "invalid-result");
+        assertEquals(result.getResponse().getStatus(), 400);
     }
 
 }
