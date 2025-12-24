@@ -14,18 +14,23 @@ To stop:
 docker compose down
 ```
 
-# Without docker compose
+# Local Development
 
 ## Prerequisites
 - Java 17
-- Docker
-- Node.js (for frontend)
+- Docker (for MySQL)
+- Node.js 20+ (for frontend)
 
-## Local Development
+## Setup
 
 ### Start MySQL
 ```bash
-docker compose up -d
+docker compose up mysql -d
+```
+
+### Build the Project
+```bash
+./gradlew build
 ```
 
 ### Run Database Migrations
@@ -40,8 +45,10 @@ docker compose up -d
 
 ### Run Frontend
 ```bash
-cd frontend && npm run dev
+cd frontend && npm install && npm run dev
 ```
+
+Access the app at http://localhost:5173
 
 ## Tests
 
